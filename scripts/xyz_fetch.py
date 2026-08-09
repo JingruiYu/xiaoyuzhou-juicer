@@ -646,9 +646,15 @@ def load_credential(args):
         # 默认按 refresh token 对待（长效、可自动续期）
         kind = "access" if args.token_is_access else "refresh"
         return kind, val, args.token_file
+    env_rt = os.environ.get("XIAOYUZHOU_REFRESH_TOKEN", "").strip()
+    if env_rt:
+        return "refresh", env_rt, None
     env_rt = os.environ.get("XYZ_REFRESH_TOKEN", "").strip()
     if env_rt:
         return "refresh", env_rt, None
+    env_at = os.environ.get("XIAOYUZHOU_ACCESS_TOKEN", "").strip()
+    if env_at:
+        return "access", env_at, None
     env_at = os.environ.get("XYZ_TOKEN", "").strip()
     if env_at:
         return "access", env_at, None
@@ -722,7 +728,7 @@ def main():
             eprint(f"✗ 续期接口 HTTP {e.code}：refresh token 已失效，重新登录抓一枚。")
             sys.exit(1)
         if not token:
-            eprint("✗ 该模式需要 token（--token-file / 环境变量 XYZ_REFRESH_TOKEN）。")
+            eprint("✗ 该模式需要 token（--token-file / 环境变量 XIAOYUZHOU_REFRESH_TOKEN / XYZ_REFRESH_TOKEN）。")
             sys.exit(1)
         if args.discover:
             disc = fetch_discovery(token)
@@ -793,7 +799,7 @@ def main():
         eprint(f"✗ 续期接口 HTTP {e.code}：refresh token 已失效，重新登录网页版抓一枚。")
         sys.exit(1)
     if not token:
-        eprint("! 未提供凭证（--token-file / --refresh-token / 环境变量 XYZ_REFRESH_TOKEN），"
+        eprint("! 未提供凭证（--token-file / --refresh-token / 环境变量 XIAOYUZHOU_REFRESH_TOKEN / XYZ_REFRESH_TOKEN），"
                "跳过逐字稿，仅产出元信息。")
         eprint("✓ 完成：", outdir)
         return
