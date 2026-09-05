@@ -14,7 +14,10 @@ MODES = ("quick", "full", "transcript", "deep")
 
 
 def cache_root():
-    return Path(os.environ.get("XDG_CACHE_HOME", Path.home() / ".cache")) / "xiaoyuzhou-juicer"
+    configured_cache_dir = os.environ.get("XIAOYUZHOU_JUICER_CACHE_DIR", "").strip()
+    if configured_cache_dir:
+        return Path(configured_cache_dir).expanduser()
+    return Path("/home/nvda/JRAgent/var/files/outputs/xiaoyuzhou-juicer")
 
 
 def safe_name(value, limit=80):

@@ -125,7 +125,7 @@ python3 scripts/xyz_fetch.py "https://www.xiaoyuzhoufm.com/episode/<EID>" \
   --token-file config/token.txt
 ```
 
-抓取缓存默认写到 `~/.cache/xiaoyuzhou-juicer/<EID>/`（遵循 XDG，`--out` 可覆盖；
+抓取缓存默认写到 `/home/nvda/JRAgent/var/files/outputs/xiaoyuzhou-juicer/<EID>/`（可用环境变量 `XIAOYUZHOU_JUICER_CACHE_DIR` 或 `--out` 覆盖；
 不污染 skill 安装目录。这些是按 EID 可重建的缓存，成品另行归档）：
 
 ```
@@ -161,7 +161,7 @@ python3 scripts/xyz_fetch.py --discover --subscriptions --inbox \
   --token-file config/token.txt
 ```
 
-脚本会对 refresh token 加进程锁、原子写回轮换结果，并在本地 XDG 缓存中短暂复用 access token，避免并发命令互相使 token 失效。
+脚本会对 refresh token 加进程锁、原子写回轮换结果，并在默认缓存目录的 `auth/` 子目录中短暂复用 access token，避免并发命令互相使 token 失效。
 
 ### 5. 生成摘要骨架、归档与校验
 
@@ -171,9 +171,9 @@ python3 scripts/xyz_render.py <EID> --mode full
 
 # 填完 summary-scaffold.md 后校验原标题、章节、热度、时间戳与引文
 python3 scripts/xyz_validate.py 摘要.md \
-  --meta ~/.cache/xiaoyuzhou-juicer/<EID>/meta.json \
-  --transcript ~/.cache/xiaoyuzhou-juicer/<EID>/transcript.md \
-  --comments ~/.cache/xiaoyuzhou-juicer/<EID>/comments.json
+  --meta /home/nvda/JRAgent/var/files/outputs/xiaoyuzhou-juicer/<EID>/meta.json \
+  --transcript /home/nvda/JRAgent/var/files/outputs/xiaoyuzhou-juicer/<EID>/transcript.md \
+  --comments /home/nvda/JRAgent/var/files/outputs/xiaoyuzhou-juicer/<EID>/comments.json
 ```
 
 归档目录可以通过 `--archive-dir` 临时指定，或复制 `config/archive.example.ini` 为 `config/archive.ini` 后长期配置。也可显式传 `--history-root`，从允许扫描的范围内寻找历史 `*-摘要.md` 最集中的目录。

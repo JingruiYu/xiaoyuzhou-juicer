@@ -19,7 +19,7 @@ xyz_fetch.py — 小宇宙单集元信息 + 逐字稿抓取（零第三方依赖
     python3 xyz_fetch.py --inbox          --token-file ../config/token.txt  # 订阅更新
     python3 xyz_fetch.py --search "关键词" --token-file ../config/token.txt  # 搜索单集/播客
 
-抓取缓存默认写到 ~/.cache/xiaoyuzhou-juicer/<eid>/（遵循 XDG，可用 --out 覆盖）。
+抓取缓存默认写到 JRAgent workspace 内的 var/files/outputs/xiaoyuzhou-juicer/<eid>/（可用 --out 覆盖）。
 账户级模式（discover/subscriptions/inbox）写到缓存根目录下的 discover.md / subscriptions.md / inbox.md。
 成品（摘要/逐字稿）由 skill 流程另行归档到用户指定的笔记目录，不落在缓存里。
 
@@ -66,11 +66,12 @@ REFRESH_URL = f"{API_BASE}/app_auth_tokens.refresh"
 
 
 def default_cache_dir():
-    """抓取缓存默认落在 XDG 缓存目录，不污染 skill 安装目录。
-    成品（摘要/逐字稿）由调用方另行归档到用户笔记库。"""
-    base = os.environ.get("XDG_CACHE_HOME", "").strip() \
-        or os.path.join(os.path.expanduser("~"), ".cache")
-    return os.path.join(base, "xiaoyuzhou-juicer")
+    """抓取缓存默认落在 JRAgent workspace 内，避免被 file access 拦住。
+    若需要恢复 XDG 行为，可通过 --out 或 XIAOYUZHOU_JUICER_CACHE_DIR 显式指定。"""
+    configured_cache_dir = os.environ.get("XIAOYUZHOU_JUICER_CACHE_DIR", "").strip()
+    if configured_cache_dir:
+        return os.path.expanduser(configured_cache_dir)
+    return "/home/nvda/JRAgent/var/files/outputs/xiaoyuzhou-juicer"
 
 
 def app_headers(extra=None):
@@ -695,7 +696,7 @@ def main():
     ap.add_argument("episode", nargs="?",
                     help="小宇宙单集链接或 eid（账户级模式 --discover/--subscriptions/--inbox 时可省略）")
     ap.add_argument("--out", default=None,
-                    help="抓取缓存根目录（默认 ~/.cache/xiaoyuzhou-juicer，遵循 XDG）")
+                    help="抓取缓存根目录（默认 /home/nvda/JRAgent/var/files/outputs/xiaoyuzhou-juicer）")
     ap.add_argument("--token-file", help="凭证文件路径（默认存 refresh token，自动续期并回存）")
     ap.add_argument("--token-is-access", action="store_true",
                     help="指明 --token-file 里存的是短效 access token 而非 refresh token")

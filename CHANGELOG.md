@@ -43,7 +43,7 @@
 - 工程化：`pyproject.toml`、Ruff lint + `py_compile` 的 GitHub Actions CI、`SECURITY.md`、`CONTRIBUTING.md`、本 changelog。
 
 ### Changed
-- 抓取产物迁移到 XDG 缓存目录（`~/.cache/xiaoyuzhou-juicer/<eid>/`），不再污染 skill 安装目录。
+- 抓取产物迁移到默认缓存目录；在 JRAgent 环境中默认位于 `/home/nvda/JRAgent/var/files/outputs/xiaoyuzhou-juicer/<eid>/`，不再污染 skill 安装目录。
 
 ### Fixed
 - 清理脚本 lint 问题（import 排序、歧义变量名、多语句分号、空 f-string）。

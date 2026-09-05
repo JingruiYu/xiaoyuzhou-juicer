@@ -55,7 +55,7 @@ python3 scripts/xyz_fetch.py --discover --subscriptions --inbox --token-file con
 python3 scripts/xyz_render.py <EID> --mode full
 ```
 
-Fetched files are cached under `~/.cache/xiaoyuzhou-juicer/<EID>/` (XDG-compliant, override with `--out`).
+Fetched files are cached under `/home/nvda/JRAgent/var/files/outputs/xiaoyuzhou-juicer/<EID>/` by default (override with `XIAOYUZHOU_JUICER_CACHE_DIR` or `--out`).
 
 ## Getting a token
 

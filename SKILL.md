@@ -44,12 +44,15 @@ access token 仅约 2 小时有效，故存**长效 refresh token**；脚本优�
 ### 1. 抓取（确定性，跑脚本）
 
 ```bash
-python3 scripts/xyz_fetch.py "<单集链接或eid>" --token-file config/token.txt --comments
+python3 scripts/xyz_fetch.py "<单集链接或eid>" --token-file config/token.txt --comments --out /home/nvda/JRAgent/var/files/outputs/xiaoyuzhou-juicer
 # 无 token 时：加 --meta-only（评论免 token，--comments 仍生效）
 ```
 
-抓取缓存默认落在 `~/.cache/xiaoyuzhou-juicer/<eid>/`（遵循 XDG，可用 `--out` 覆盖；
-**不写 skill 安装目录**）：`meta.json`（含 `stats` 热度字段：播放/收藏/评论/标记数 + 节目订阅数，免 token）、
+在 JRAgent/OpenClaw 等受文件访问白名单约束的环境中，**优先显式指定 workspace 内缓存目录**：
+`--out /home/nvda/JRAgent/var/files/outputs/xiaoyuzhou-juicer`。这样后续读取和渲染都在 engine file access 可覆盖的工作区内。
+
+如果未显式指定 `--out`，抓取缓存默认也会落在 `/home/nvda/JRAgent/var/files/outputs/xiaoyuzhou-juicer/<eid>/`；可用环境变量 `XIAOYUZHOU_JUICER_CACHE_DIR` 或 `--out` 覆盖。
+缓存内容包括：`meta.json`（含 `stats` 热度字段：播放/收藏/评论/标记数 + 节目订阅数，免 token）、
 `chapters.md`(官方章节)、`shownotes.md`、
 `transcript.json`(原始 text+startMs)、`transcript.md`(可读逐字稿)、
 `comments.{json,md}`(评论区首屏热评，`--comments` 时产出)。
@@ -153,9 +156,10 @@ Read `meta.json` 和 `chapters.md`。从 `title`/`description` 识别**嘉宾姓
 - 抓取后先运行确定性骨架生成器：
 
 ```bash
-python3 scripts/xyz_render.py <eid> --mode quick|full|transcript|deep
+python3 scripts/xyz_render.py <eid> --mode quick|full|transcript|deep --cache-dir /home/nvda/JRAgent/var/files/outputs/xiaoyuzhou-juicer
 ```
 
+  默认情况下，渲染器会从 `/home/nvda/JRAgent/var/files/outputs/xiaoyuzhou-juicer` 查找缓存；如果第 1 步显式传了其它 `--out`，这里必须同步传入同一个 `--cache-dir`。
   它会从 `meta.json`、官方章节和评论生成固定顺序、原始数字与时间轴，模型只填充 `TODO` 内容。
 - **`摘要.md` 的 H1 标题 = `meta.json` 的 `title` 字段原样**——不改写、不裁剪、不补空格、不删感叹句。多数节目原标题自带期号（如 `140. 对姚顺宇的4小时访谈：请允许我小疯一下！在Anthropic和Gemini训模型…`），天然就是「期号 + 原标题」；原标题不含编号的节目就用原标题本身，**不要自己编造期号**。
 - 产出 `逐字稿.md` + `摘要.md`（摘要顺序：**TL;DR → 决策卡 + 听众怎么看 → 嘉宾背景卡 → 章节时间轴 → 章节摘要（带必听指数）→ 金句 → 带走的 N 件事 → 提到的人/书/论文/产品 → 争议/存疑**；被跳过的步骤自然省略）。
@@ -172,7 +176,7 @@ python3 scripts/xyz_validate.py 摘要.md --meta <cache>/meta.json \
 
 ## 其它能力：发现 / 订阅
 
-逐字稿之外，脚本还支持账户级场景。产物都落在缓存根目录（`~/.cache/xiaoyuzhou-juicer/`），由 AI 读后总结，**不预设归档路径**。
+逐字稿之外，脚本还支持账户级场景。产物都落在缓存根目录（默认 `/home/nvda/JRAgent/var/files/outputs/xiaoyuzhou-juicer/`），由 AI 读后总结，**不预设归档路径**。
 
 ### 发现页（用户不知道听什么时）
 
